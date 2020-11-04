@@ -1,7 +1,6 @@
 use macroquad::prelude::*;
 use std::sync::{RwLock, Arc, Mutex};
 use crate::world::World;
-use std::result::Result::Ok;
 
 #[derive(Clone)]
 struct SandRenderer {
@@ -141,9 +140,5 @@ impl Sand {
             delta_y: self.delta_y,
             id: self.id,
         }
-    }
-
-    pub fn to_string(&self) -> String {
-        format!("Sand #{} ({},{})", self.id, self.x, self.y)
     }
 }

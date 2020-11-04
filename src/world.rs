@@ -1,7 +1,5 @@
 use crate::sand::Sand;
-use std::sync::{Arc, RwLock, Mutex};
-use std::ops::Deref;
-use std::mem;
+use std::sync::{Arc, RwLock};
 
 pub struct World {
     pub width: usize,

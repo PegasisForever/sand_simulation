@@ -9,7 +9,6 @@ use std::sync::{Arc, RwLock};
 use crate::world::World;
 use std::ops::Deref;
 use threadpool::ThreadPool;
-use std::sync::mpsc::channel;
 
 fn window_conf() -> Conf {
     Conf {
@@ -40,7 +39,7 @@ async fn main() {
     }
 
 
-    let mut world = Arc::new(RwLock::new(world));
+    let world = Arc::new(RwLock::new(world));
 
     let pool = ThreadPool::new(16);
 
@@ -62,7 +61,7 @@ async fn main() {
             pool.execute(move || {
                 let mut sand2 = sand.read().unwrap().deref().clone();
                 sand2.update(dt, world);
-                std::mem::replace(&mut *sand.write().unwrap(), sand2);
+                *sand.write().unwrap() = sand2;
             });
         }
         pool.join();
