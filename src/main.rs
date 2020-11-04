@@ -1,9 +1,13 @@
 mod sand;
+mod world;
 
 use macroquad::prelude::*;
 use macroquad::get_context;
 use std::time::SystemTime;
 use sand::Sand;
+use std::sync::{Arc, RwLock};
+use crate::world::World;
+use std::ops::Deref;
 
 fn window_conf() -> Conf {
     Conf {
@@ -20,24 +24,34 @@ async fn main() {
     gl.texture(None);
     gl.draw_mode(DrawMode::Triangles);
 
-    let mut sands = Vec::with_capacity(45 * 45);
-    for x in 0..45 {
-        for y in 0..45 {
-            let mut sand = Sand::new((x * 13) as f32, (y * 8) as f32);
-            sand.prepare_draw();
-            sands.push(sand);
+    let mut world = World::new(600, 400, 5);
+
+    for x in 0..100 {
+        for y in 0..100 {
+            let sand = Arc::new(RwLock::new(Sand::new((x * 6) as f32, (y * 4) as f32)));
+            world.add_sand(sand);
         }
     }
+
+    let mut world = Arc::new(RwLock::new(world));
 
     loop {
         let start_time = SystemTime::now();
         clear_background(BLACK);
 
-        for sand in &mut sands {
+        for sand in &world.read().unwrap().sands {
+            let mut sand2 = sand.read().unwrap().deref().clone();
+            sand2.update(10f32 / 16f32, world.clone());
+            std::mem::replace(&mut *sand.write().unwrap(),sand2);
+        }
+        for sand in &world.read().unwrap().sands {
+            let mut sand = sand.write().unwrap();
             sand.draw(gl);
         }
 
-        println!("{}fps", (1000_000f64)/(start_time.elapsed().unwrap().as_micros() as f64));
+        world.write().unwrap().recreate_grid();
+
+        println!("{}fps", (1000_000f64) / (start_time.elapsed().unwrap().as_micros() as f64));
         next_frame().await
     }
 }
