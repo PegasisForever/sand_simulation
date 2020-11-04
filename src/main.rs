@@ -25,22 +25,20 @@ async fn main() {
     gl.texture(None);
     gl.draw_mode(DrawMode::Triangles);
 
-    let mut world = World::new(600, 400, 2);
-
-    for x in 0..100 {
-        for y in 0..100 {
-            let sand = Arc::new(RwLock::new(Sand::new(
-                (x * 6) as f32,
-                (y * 4) as f32,
-                (x + y * 1000) as usize,
-            )));
-            world.add_sand(sand);
-        }
-    }
+    // for x in 0..100 {
+    //     for y in 0..100 {
+    //         let sand = Arc::new(RwLock::new(Sand::new(
+    //             (x * 6) as f32,
+    //             (y * 4) as f32,
+    //             (x + y * 1000) as usize,
+    //         )));
+    //         world.add_sand(sand);
+    //     }
+    // }
 
 
-    let world = Arc::new(RwLock::new(world));
-
+    let world = Arc::new(RwLock::new(World::new(600, 400, 2)));
+    let mut sand_count = 0usize;
     let pool = ThreadPool::new(16);
 
     let mut last_start_time: Option<SystemTime> = None;
@@ -54,6 +52,20 @@ async fn main() {
         last_start_time = Some(start_time.clone());
 
         clear_background(BLACK);
+
+        if is_mouse_button_down(MouseButton::Left) {
+            let (x, y) = mouse_position();
+            let mut world = world.write().unwrap();
+            for _ in 0..=((dt * 10f32) as isize) {
+                let sand = Arc::new(RwLock::new(Sand::new(
+                    x,
+                    y,
+                    sand_count + 1,
+                )));
+                world.add_sand(sand);
+                sand_count += 1;
+            }
+        }
 
         let count = world.read().unwrap().sands.len();
         for sand in &world.read().unwrap().sands {
