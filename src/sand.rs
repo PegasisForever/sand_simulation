@@ -92,7 +92,7 @@ impl Sand {
                 let y_diff = self.y - sand.y;
                 if x_diff > -SAND_RADIUS * 2f32 && x_diff < SAND_RADIUS * 2f32 &&
                     y_diff > -SAND_RADIUS * 2f32 && y_diff < SAND_RADIUS * 2f32 {
-                    // todo self.x += (random.randint(0, 4) - 2) / 16
+                    self.x += (((y_diff * 11.3f32 + x_diff * 7.7f32 + dt * 791.4f32 + sand.id as f32 * 3.9f32 + 1.1f32) as isize) % 5 - 2) as f32;
                     if x_diff < 0f32 { // self is at left of the sand
                         self.x -= SAND_RADIUS * 2f32 + x_diff;
                         self.delta_x -= (SAND_RADIUS * 2f32 + x_diff) / 2f32;
@@ -116,9 +116,9 @@ impl Sand {
             self.y = SAND_RADIUS * 2f32;
         }
         if self.x > world.width as f32 - SAND_RADIUS * 2f32 {
-            self.x = world.width as f32 - SAND_RADIUS * 2f32;
+            self.x = world.width as f32 - SAND_RADIUS * 2f32 - (((dt * 791.4f32 + 1.1f32) as isize) % 5) as f32;
         } else if self.x < SAND_RADIUS * 2f32 {
-            self.x = SAND_RADIUS * 2f32;
+            self.x = SAND_RADIUS * 2f32 + (((dt * 791.4f32 + 1.1f32) as isize) % 5) as f32;
         }
 
         self.prepare_draw();
