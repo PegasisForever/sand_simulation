@@ -13,7 +13,7 @@ struct SandRenderer {
 
 impl SandRenderer {
     pub fn new(radius: f32, color: Color) -> Self {
-        let sides = 16u8;
+        let sides = 6u8;
         let mut vertices = Vec::<Vertex>::with_capacity(sides as usize + 2);
         let mut indices = Vec::<u16>::with_capacity(sides as usize * 3);
 
@@ -60,18 +60,20 @@ pub struct Sand {
     pub y: f32,
     pub delta_x: f32,
     pub delta_y: f32,
+    pub id: usize,
 }
 
-const SAND_RADIUS: f32 = 2f32;
+const SAND_RADIUS: f32 = 1f32;
 
 impl Sand {
-    pub fn new(x: f32, y: f32) -> Self {
+    pub fn new(x: f32, y: f32, id: usize) -> Self {
         Self {
-            renderer: Arc::new(Mutex::new(SandRenderer::new(2f32, GREEN))),
+            renderer: Arc::new(Mutex::new(SandRenderer::new(SAND_RADIUS, GREEN))),
             x,
             y,
             delta_x: 0.0,
             delta_y: 0.0,
+            id,
         }
     }
 
@@ -85,13 +87,13 @@ impl Sand {
         let nearby = world.get_nearby(self.x, self.y);
         for sand in nearby {
             let sand = sand.read().unwrap();
-            let x_diff = self.x - sand.x;
-            let y_diff = self.y - sand.y;
-            if x_diff != 0f32 || y_diff != 0f32 {
+            if sand.id != self.id {
+                let x_diff = self.x - sand.x;
+                let y_diff = self.y - sand.y;
                 if x_diff > -SAND_RADIUS * 2f32 && x_diff < SAND_RADIUS * 2f32 &&
                     y_diff > -SAND_RADIUS * 2f32 && y_diff < SAND_RADIUS * 2f32 {
                     // todo self.x += (random.randint(0, 4) - 2) / 16
-                    if x_diff <= 0f32 { // self is at left of the sand
+                    if x_diff < 0f32 { // self is at left of the sand
                         self.x -= SAND_RADIUS * 2f32 + x_diff;
                         self.delta_x -= (SAND_RADIUS * 2f32 + x_diff) / 2f32;
                         self.delta_y -= 0.1f32;
@@ -105,8 +107,6 @@ impl Sand {
                         self.delta_y = 0f32;
                     }
                 }
-            } else {
-                // println!("found itself");
             }
         }
 
@@ -139,6 +139,11 @@ impl Sand {
             y: self.y,
             delta_x: self.delta_x,
             delta_y: self.delta_y,
+            id: self.id,
         }
+    }
+
+    pub fn to_string(&self) -> String {
+        format!("Sand #{} ({},{})", self.id, self.x, self.y)
     }
 }

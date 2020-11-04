@@ -48,7 +48,7 @@ impl World {
             let grid_y = sand.y as usize / self.grid_size;
             &mut self.grids[grid_x][grid_y].write().unwrap()
         }.push(sand.clone());
-        self.sands.push(sand.clone())
+        self.sands.push(sand);
     }
 
     fn try_minus_1(num: usize) -> usize {
@@ -89,10 +89,11 @@ impl World {
                     let sand_grid_x = sand.x as usize / self.grid_size;
                     let sand_grid_y = sand.y as usize / self.grid_size;
                     drop(sand);
-                    if sand_grid_y != sand_grid_y || sand_grid_x != sand_grid_x {
+                    if sand_grid_y != grid_y || sand_grid_x != grid_x {
+                        let removed_sand = grid.swap_remove(i);
                         self.grids[sand_grid_x][sand_grid_y]
                             .write().unwrap()
-                            .push(grid.swap_remove(i));
+                            .push(removed_sand);
                     }
                 }
             }

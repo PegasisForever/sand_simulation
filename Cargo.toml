@@ -12,3 +12,4 @@ codegen-units = 1
 
 [dependencies]
 macroquad = "0.3.0-alpha.9"
+threadpool = "1.8.1"
