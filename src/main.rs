@@ -44,8 +44,16 @@ async fn main() {
 
     let pool = ThreadPool::new(16);
 
+    let mut last_start_time: Option<SystemTime> = None;
     loop {
         let start_time = SystemTime::now();
+        let dt = if let Some(last_start_time) = last_start_time {
+            start_time.duration_since(last_start_time).unwrap().as_millis() as f32 * 0.01f32
+        } else {
+            1f32 / 6f32
+        };
+        last_start_time = Some(start_time.clone());
+
         clear_background(BLACK);
 
         for sand in &world.read().unwrap().sands {
@@ -53,7 +61,7 @@ async fn main() {
             let world = world.clone();
             pool.execute(move || {
                 let mut sand2 = sand.read().unwrap().deref().clone();
-                sand2.update(10f32 / 16f32, world);
+                sand2.update(dt, world);
                 std::mem::replace(&mut *sand.write().unwrap(), sand2);
             });
         }
