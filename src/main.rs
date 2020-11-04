@@ -55,6 +55,7 @@ async fn main() {
 
         clear_background(BLACK);
 
+        let count = world.read().unwrap().sands.len();
         for sand in &world.read().unwrap().sands {
             let sand = sand.clone();
             let world = world.clone();
@@ -73,7 +74,8 @@ async fn main() {
 
         world.write().unwrap().recreate_grid();
 
-        println!("{}fps", (1000_000f64) / (start_time.elapsed().unwrap().as_micros() as f64));
+        draw_text(&*format!("FPS: {:.1}", (1000_000f64) / (start_time.elapsed().unwrap().as_micros() as f64)), 0.0, 0.0, 30.0, WHITE);
+        draw_text(&*format!("Sand count: {}", count), 0.0, 20.0, 30.0, WHITE);
         next_frame().await
     }
 }
