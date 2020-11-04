@@ -56,7 +56,7 @@ async fn main() {
         if is_mouse_button_down(MouseButton::Left) {
             let (x, y) = mouse_position();
             let mut world = world.write().unwrap();
-            for _ in 0..=((dt * 10f32) as isize) {
+            for _ in 0..=((dt * 25f32) as isize) {
                 let sand = Arc::new(RwLock::new(Sand::new(
                     x,
                     y,
